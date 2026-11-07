@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CampusLoop | Student Marketplace</title>
+<style>
+:root{--navy:#14213d;--green:#26966c;--bg:#f5f7fb;--line:#e3e8ef}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:#202b3b}
+.top{background:var(--navy);color:white;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:24px;font-weight:bold}.brand span{color:#75ddb0}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:10px 13px;font-weight:bold;cursor:pointer}
+.nav button{background:transparent;border:1px solid #69758a;color:white}
+.nav button.active{background:white;color:var(--navy)}
+.primary{background:var(--green);color:white}
+.secondary{background:#edf1f6;color:var(--navy)}
+.danger{background:#fff0ef;color:#a52620}
+main{max-width:1100px;margin:auto;padding:24px 16px}
+.hero{background:linear-gradient(120deg,#e8f8ef,#eef2ff);border-radius:20px;padding:28px;display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+.hero h1{font-size:clamp(30px,4vw,46px);margin:8px 0}
+.hero p{line-height:1.55;color:#536174}
+.hero-card,.panel,.item{background:white;border:1px solid var(--line);border-radius:15px;padding:18px}
+.stats{display:flex;gap:10px;margin-top:14px}
+.stats div{background:white;padding:12px;border-radius:10px;flex:1}
+.stats b{font-size:22px;display:block}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:24px 0 12px}
+.tools{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+.tools input{flex:1;min-width:180px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d4dce6;border-radius:9px;background:white;font:inherit}
+.tools select{width:auto}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.item{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.pic{background:#eaf7ef;height:100px;display:grid;place-items:center;font-size:42px}
+.item-body{padding:15px;display:flex;flex-direction:column;gap:8px;flex:1}
+.item h3{margin:0}
+.muted{color:#667085;font-size:13px;line-height:1.45}
+.price{color:var(--green);font-size:20px;font-weight:bold}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.actions{display:flex;gap:8px;margin-top:auto}
+.actions button{flex:1}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.formgrid label{font-size:13px;font-weight:bold;display:flex;flex-direction:column;gap:7px}
+.full{grid-column:1/-1}
+.notice{background:#fff6dc;color:#775100;border-radius:9px;padding:12px;font-size:13px;line-height:1.5;margin:12px 0}
+.hidden{display:none!important}
+.tablewrap{overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:600px}
+th,td{text-align:left;border-bottom:1px solid var(--line);padding:10px;font-size:13px}
+.empty{padding:25px;background:white;border:1px dashed #cbd5e1;border-radius:12px;text-align:center;color:#667085}
+.modalbg{position:fixed;inset:0;background:#14213d88;display:grid;place-items:center;padding:15px}
+.modal{background:white;padding:22px;border-radius:15px;max-width:460px;width:100%}
+.foot{text-align:center;color:#667085;font-size:12px;margin:25px 0}
+@media(max-width:700px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid{grid-template-columns:1fr}.full{grid-column:auto}}
+@media(max-width:470px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+<div><div class="brand">Campus<span>Loop</span> ↻</div><small>Student-to-student marketplace demo</small></div>
+<nav class="nav">
+<button class="active" data-page="browse">Browse items</button>
+<button data-page="add">Add sample data</button>
+<button data-page="manage">Manage data</button>
+</nav>
+</header>
+
+<main>
+<section id="browsePage">
+<div class="hero">
+<div>
+<small style="color:#26966c;font-weight:bold;letter-spacing:1px">MADE FOR CAMPUS LIFE</small>
+<h1>Find it on campus.<br>Pass it on.</h1>
+<p>Buy, sell, or exchange pre-loved books, calculators, lab supplies, and stationery with fellow students.</p>
+<button class="primary" onclick="page('add')">＋ Add a listing</button>
+</div>
+<div class="hero-card">
+<div style="font-size:38px">📚 ♻️ 🎒</div>
+<h3>Student essentials, reused.</h3>
+<p class="muted">A working class-project prototype with sample data, search, categories, edit and delete.</p>
+<div class="stats">
+<div><b id="count">0</b><small>Listings</small></div>
+<div><b id="cats">0</b><small>Categories</small></div>
+<div><b id="avg">₹0</b><small>Avg. price</small></div>
+</div>
+</div>
+</div>
+<div class="head"><h2>Student listings</h2><span> </span></div>
+<div class="tools">
+<input id="search" placeholder="Search books, calculators, stationery…">
+<select id="category">
+<option>All categories</option><option>Books</option>
+<option>Electronics</option><option>Lab Supplies</option>
+<option>Stationery</option><option>Other</option>
+</select>
+<select id="sort">
+<option value="new">Newest first</option>
+<option value="low">Price: low to high</option>
+<option value="high">Price: high to low</option>
+</select>
+</div>
+<div class="grid" id="grid"></div>
+</section>
+
+<section id="addPage" class="hidden">
+<div class="head"><h2>Add sample data</h2></div>
+<div class="panel">
+<div class="notice">Demo: data is saved only in this browser on this device. It is not uploaded to a server.</div>
+<form id="form" class="formgrid">
+<label>Item name *
+<input name="name" required maxlength="70" placeholder="e.g. Engineering Mathematics textbook">
+</label>
+<label>Price (₹) *
+<input name="price" type="number" min="0" required placeholder="e.g. 250">
+</label>
+<label>Category *
+<select name="category" required>
+<option value="">Choose category</option><option>Books</option>
+<option>Electronics</option><option>Lab Supplies</option>
+<option>Stationery</option><option>Other</option>
+</select>
+</label>
+<label>Condition *
+<select name="condition" required>
+<option value="">Choose condition</option><option>Like new</option>
+<option>Good</option><option>Used</option>
+</select>
+</label>
+<label>Seller name *
+<input name="seller" required placeholder="e.g. Student Seller">
+</label>
+<label>Contact (sample only)
+<input name="contact" placeholder="e.g. student@example.com">
+</label>
+<label class="full">Description *
+<textarea name="description" required rows="3" placeholder="Describe the item and its condition"></textarea>
+</label>
+<label>Item icon
+<select name="icon">
+<option>📚</option><option>🧮</option><option>💻</option>
+<option>🧪</option><option>✏️</option><option>🎒</option>
+<option>📐</option><option>🎧</option><option>📦</option>
+</select>
+</label>
+<div style="align-self:end">
+<button class="primary" type="submit">Add listing</button>
+<button class="secondary" type="reset">Clear</button>
+</div>
+</form>
+<p id="message"></p>
+</div>
+</section>
+
+<section id="managePage" class="hidden">
+<div class="head"><h2>Manage sample data</h2></div>
+<div class="panel">
+<div class="notice">This is a prototype, not a live marketplace. It does not process payments or send messages.</div>
+<div class="tools">
+<button class="primary" onclick="exportData('csv')">Export CSV</button>
+<button class="secondary" onclick="exportData('json')">Export JSON</button>
+<button class="secondary" onclick="document.getElementById('file').click()">Import JSON</button>
+<button class="secondary" onclick="addSamples()">＋ Add more samples</button>
+<button class="danger" onclick="resetData()">Restore original data</button>
+<input id="file" class="hidden" type="file" accept=".json,application/json">
+</div>
+<div class="tablewrap">
+<table>
+<thead><tr><th>Item</th><th>Category</th><th>Condition</th><th>Price</th><th>Seller</th><th>Actions</th></tr></thead>
+<tbody id="rows"></tbody>
+</table>
+</div>
+<p id="empty" class="empty hidden">No listings yet. Add one from the Add sample data page.</p>
+</div>
+</section>
+<div class="foot">CampusLoop student project prototype · All initial listings are fictional sample data.</div>
+</main>
+<div id="modal"></div>
+
+<script>
+const KEY='campusloop_sample_data_v3';
+
+const starter=[
+{id:1,name:'Engineering Mathematics',category:'Books',condition:'Good',price:220,seller:'Aarav (Demo)',contact:'sample@example.com',description:'Useful semester textbook. Pages are clean and notes are minimal.',icon:'📚',created:1},
+{id:2,name:'Scientific Calculator',category:'Electronics',condition:'Like new',price:450,seller:'Maya (Demo)',contact:'sample@example.com',description:'Working calculator suitable for class and exams.',icon:'🧮',created:2},
+{id:3,name:'Physics Lab Record',category:'Lab Supplies',condition:'Used',price:80,seller:'Student Seller (Demo)',contact:'sample@example.com',description:'Sample lab record listing. Check course requirements before use.',icon:'🧪',created:3},
+{id:4,name:'Geometry Box',category:'Stationery',condition:'Good',price:60,seller:'Nikhil (Demo)',contact:'sample@example.com',description:'Basic geometry tools for everyday academic work.',icon:'📐',created:4},
+{id:5,name:'DSA Quick Notes',category:'Books',condition:'Good',price:100,seller:'Riya (Demo)',contact:'sample@example.com',description:'Concise revision notes for sorting and complexity.',icon:'📝',created:5},
+{id:6,name:'USB Keyboard',category:'Electronics',condition:'Used',price:180,seller:'Demo User',contact:'sample@example.com',description:'Basic USB keyboard. Sample listing only.',icon:'⌨️',created:6}
+];
+
+let items=load();
+
+function load(){
+try{
+let d=JSON.parse(localStorage.getItem(KEY));
+if(Array.isArray(d))return d;
+}catch(e){}
+return starter.map(x=>({...x}));
+}
+function save(){
+try{localStorage.setItem(KEY,JSON.stringify(items));}catch(e){}
+render();
+}
+function esc(v){
+return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function rupees(v){return '₹'+Number(v||0).toLocaleString('en-IN');}
+
+function page(p){
+['browse','add','manage'].forEach(x=>
+document.getElementById(x+'Page').classList.toggle('hidden',x!==p)
+);
+document.querySelectorAll('[data-page]').forEach(b=>
+b.classList.toggle('active',b.dataset.page===p)
+);
+if(p==='browse')render();
+window.scrollTo(0,0);
+}
+document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>page(b.dataset.page));
+['search','category','sort'].forEach(id=>
+document.getElementById(id).addEventListener(id==='search'?'input':'change',render)
+);
+
+function render(){
+let q=document.getElementById('search').value.toLowerCase();
+let cat=document.getElementById('category').value;
+let sort=document.getElementById('sort').value;
+let list=items.filter(x=>
+(cat==='All categories'||x.category===cat)&&
+[x.name,x.description,x.seller,x.category].join(' ').toLowerCase().includes(q)
+);
+list.sort((a,b)=>sort==='low'?a.price-b.price:sort==='high'?b.price-a.price:b.created-a.created);
+
+document.getElementById('grid').innerHTML=list.length?list.map(x=>`
+<article class="item">
+<div class="pic">${esc(x.icon||'📦')}</div>
+<div class="item-body">
+<small class="muted">${esc(x.category)} · ${esc(x.condition)}</small>
+<h3>${esc(x.name)}</h3>
+<div class="muted">${esc(x.description)}</div>
+<div class="row"><span class="price">${rupees(x.price)}</span><small class="muted">${esc(x.seller)}</small></div>
+<div class="actions">
+<button class="secondary" onclick="details(${Number(x.id)})">Details</button>
+<button class="primary" onclick="contact(${Number(x.id)})">Contact</button>
+</div>
+</div>
+</article>`).join(''):'<div class="empty">No matching items. Try another search or add a listing.</div>';
+
+document.getElementById('count').textContent=items.length;
+document.getElementById('cats').textContent=new Set(items.map(x=>x.category)).size;
+document.getElementById('avg').textContent=rupees(items.length?Math.round(items.reduce((s,x)=>s+Number(x.price),0)/items.length):0);
+
+document.getElementById('rows').innerHTML=items.map(x=>`
+<tr>
+<td>${esc(x.icon||'📦')} <b>${esc(x.name)}</b></td>
+<td>${esc(x.category)}</td><td>${esc(x.condition)}</td>
+<td>${rupees(x.price)}</td><td>${esc(x.seller)}</td>
+<td><button class="secondary" onclick="editItem(${Number(x.id)})">Edit</button>
+<button class="danger" onclick="removeItem(${Number(x.id)})">Delete</button></td>
+</tr>`).join('');
+document.getElementById('empty').classList.toggle('hidden',items.length>0);
+}
+
+document.getElementById('form').onsubmit=e=>{
+e.preventDefault();
+let f=new FormData(e.target);
+items.unshift({
+id:Date.now(),name:String(f.get('name')).trim(),price:Number(f.get('price')),
+category:f.get('category'),condition:f.get('condition'),
+seller:String(f.get('seller')).trim(),contact:String(f.get('contact')||'').trim(),
+description:String(f.get('description')).trim(),icon:f.get('icon'),created:Date.now()
+});
+save();e.target.reset();
+document.getElementById('message').textContent='Listing added successfully!';
+page('browse');
+};
+
+function showModal(html){
+document.getElementById('modal').innerHTML=`
+<div class="modalbg" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<b>CampusLoop</b><button class="secondary" onclick="closeModal()">✕</button>
+</div>${html}
+</div>
+</div>`;
+}
+function closeModal(){document.getElementById('modal').innerHTML='';}
+
+function details(id){
+let x=items.find(a=>a.id===id);if(!x)return;
+showModal(`<div style="font-size:42px;margin-top:15px">${esc(x.icon)}</div>
+<h2>${esc(x.name)}</h2><p>${esc(x.description)}</p>
+<h2 style="color:#26966c">${rupees(x.price)}</h2>
+<p><b>Category:</b> ${esc(x.category)}<br>
+<b>Condition:</b> ${esc(x.condition)}<br><b>Seller:</b> ${esc(x.seller)}</p>
+<button class="primary" onclick="contact(${Number(x.id)})">Contact seller</button>`);
+}
+function contact(id){
+let x=items.find(a=>a.id===id);if(!x)return;
+showModal(`<h2 style="margin-top:18px">Contact seller</h2>
+<p><b>Item:</b> ${esc(x.name)}<br><b>Seller:</b> ${esc(x.seller)}</p>
+<div class="notice">Demo only: this website does not send messages.</div>
+<p><b>Sample contact:</b> ${esc(x.contact||'Not provided')}</p>`);
+}
+
+function editItem(id){
+let x=items.find(a=>a.id===id);if(!x)return;
+showModal(`<h2 style="margin-top:18px">Edit listing</h2>
+<form id="editForm" class="formgrid">
+<label class="full">Item name<input name="name" required value="${esc(x.name)}"></label>
+<label>Price<input name="price" type="number" min="0" required value="${Number(x.price)}"></label>
+<label>Category<select name="category">${['Books','Electronics','Lab Supplies','Stationery','Other'].map(c=>`<option ${x.category===c?'selected':''}>${c}</option>`).join('')}</select></label>
+<label>Condition<select name="condition">${['Like new','Good','Used'].map(c=>`<option ${x.condition===c?'selected':''}>${c}</option>`).join('')}</select></label>
+<label>Seller<input name="seller" required value="${esc(x.seller)}"></label>
+<label class="full">Description<textarea name="description" required rows="3">${esc(x.description)}</textarea></label>
+<label class="full">Contact<input name="contact" value="${esc(x.contact||'')}"></label>
+<div class="full"><button class="primary">Save changes</button></div>
+</form>`);
+document.getElementById('editForm').onsubmit=e=>{
+e.preventDefault();let f=new FormData(e.target);
+Object.assign(x,{name:f.get('name'),price:Number(f.get('price')),category:f.get('category'),
+condition:f.get('condition'),seller:f.get('seller'),description:f.get('description'),contact:f.get('contact')});
+save();closeModal();
+};
+}
+function removeItem(id){
+let x=items.find(a=>a.id===id);
+if(x&&confirm('Delete '+x.name+'?')){items=items.filter(a=>a.id!==id);save();}
+}
+function addSamples(){
+[
+{name:'Drawing Sheets Set',category:'Stationery',condition:'Good',price:70,seller:'Demo Seller 2',description:'A set of drawing sheets for practice.',icon:'📐'},
+{name:'Intro to Python Book',category:'Books',condition:'Like new',price:190,seller:'Demo Seller 3',description:'Beginner-friendly programming book.',icon:'📚'},
+{name:'Breadboard Kit',category:'Lab Supplies',condition:'Used',price:130,seller:'Demo Seller 4',description:'Basic electronics practice kit.',icon:'🧪'}
+].forEach((x,i)=>items.unshift({...x,id:Date.now()+i,contact:'sample@example.com',created:Date.now()+i}));
+save();
+}
+function resetData(){
+if(confirm('Replace current data with original sample listings?')){
+items=starter.map(x=>({...x}));save();
+}
+}
+function download(name,data,type){
+let a=document.createElement('a'),u=URL.createObjectURL(new Blob([data],{type}));
+a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);
+}
+function exportData(type){
+if(type==='json'){
+download('campusloop-sample-data.json',JSON.stringify(items,null,2),'application/json');
+}else{
+let cols=['id','name','category','condition','price','seller','contact','description','icon'];
+let quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+download('campusloop-sample-data.csv',
+[cols.join(','),...items.map(x=>cols.map(c=>quote(x[c])).join(','))].join('\r\n'),
+'text/csv;charset=utf-8');
+}
+}
+document.getElementById('file').onchange=async e=>{
+let f=e.target.files[0];if(!f)return;
+try{
+let d=JSON.parse(await f.text());
+if(!Array.isArray(d)||d.some(x=>!x.name||!Number.isFinite(Number(x.price))))throw 0;
+items=d.map((x,i)=>({...x,id:Number(x.id)||Date.now()+i,price:Number(x.price),created:Number(x.created)||Date.now()}));
+save();alert('Sample data imported.');
+}catch(err){alert('Please select a valid CampusLoop JSON export.');}
+e.target.value='';
+};
+render();
+</script>
+</body>
+</html>
